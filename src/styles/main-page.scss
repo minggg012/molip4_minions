@@ -16,6 +16,7 @@
   width: 100%;
   padding: 0 20px;
   box-sizing: border-box;
+  top: 300px;
 }
 
 .main-topbar-buttons {
@@ -44,7 +45,7 @@
 .video-outer {
   display: flex;
   height: 100%;
-  margin-top: -150px;
+  margin-top: -200px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -54,16 +55,19 @@
   position: relative;
   border-radius: 50px;
   overflow: hidden;
-  border: 10px solid $primary-color;
-  box-shadow: 0px 10px 20px rgba(0,0,0,0.2);
+  // border: 10px solid $primary-color;
+  // box-shadow: 0px 10px 20px rgba(0,0,0,0.2);
   min-width: $video-width;
   min-height: $video-height;
   transition: border-color 1.5s ease-in-out, box-shadow 1.5s ease-in-out;
+  top: -300px;
 }
 
 .video-container {
   min-width: $video-width;
   min-height: $video-height;
+  position: fixed;
+  top: 570px;
   // For transition
   transform: scale(1);
   transition: transform 1.5s ease-in-out;
@@ -115,6 +119,11 @@
   height: 0%;
   opacity: 0;
   transition: height 1.5s ease-in-out, opacity 1.5s ease-in-out;
+  flex-direction: row;
+  position: relative;
+  top: 0%;
+  left: 0%;
+  width: 1000px;
 }
 
 .countdown-overlay {
@@ -141,7 +150,7 @@
   display: flex;
   height: 64px;
   align-items: center;
-  padding-left: 95px;
+  padding-left: 170px;
   opacity: 0;
   transition: opacity 2.5s ease-in-out;
 }
@@ -203,6 +212,38 @@
   align-items: center;
   font-weight: bold;
   justify-content: center;
+  display: none;
+}
+
+.sound-icon-container {
+  position: absolute;
+  bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 290px;
+  color: white;
+  z-index: 300;
+}
+
+.sound-icon img {
+  height: 40px;
+  margin-bottom: 4px;
+}
+
+.sound-icon {
+  opacity: 0.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: bold;
+  justify-content: center;
+  display: none;
+}
+
+.sound-icon-label {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
 }
 
 .tempo-icon-label {
@@ -210,16 +251,16 @@
   color: rgba(255,255,255,0.6);
 }
 
-.song-progress {
+.song-title {
   width: 300px;
   border-radius: 20px;
-  height: 25px;
-
+  height: 35px;
+  border: #f7af6c;
   text-align: center;
-  color: white;
+  color: black;
   font-weight: bold;
-  font-size: 14px;
-  line-height: 25px;
+  font-size: 18px;
+  line-height: 35px;
 }
 
 .orchestra {
@@ -230,16 +271,20 @@
 
 .tempo-meter-container {
   position: absolute;
-  padding-top: 272px;
-  min-width: 1000px;
-  width: 100%;
+  // padding-top: 272px;
+  // min-width: 1000px;
+  // width: 100%;
   display: flex;
   justify-content: center;
+  top: 84%;
+  left: 66%;
 }
 
 .tempo-meter-container-inner {
   width: 290px;
   height: 145px;
+  // top : 550px;
+  // left: 600px;
 }
 
 .tempo-meter-clipping-box {
@@ -254,11 +299,12 @@
   width: 290px;
   height: 145px;
   z-index: 150;
-  border-bottom: 10px solid #4058D3;
+  border-bottom: 10px solid #ffffff;
   border-radius: 145px 145px 0 0;
   transform-origin: bottom center;
   transform: rotateZ(-178deg);
   transition: border-color 0.5s;
+  
 }
 
 .tempo-meter-background {
@@ -267,16 +313,75 @@
   width: 290px;
   height: 145px;
   z-index: 100;
-  background: #2b2984;
+  background: #063fe979;
   border-radius: 145px 145px 0 0;
+  display: none;
+  
 }
 
 
 .tempo-meter.stopped {
-  border-color: #4c4aa0;
+  border-color: #3432a2;
 }
 
 .tempo-meter.fast {
+  border-color: #a20258;
+}
+
+.sound-meter-container {
+  position: absolute;
+  // padding-top: 272px;
+  // min-width: 1000px;
+  // width: 100%;
+  display: flex;
+  justify-content: center;
+  top: 84%;
+  left: 18%;
+}
+
+.sound-meter-container-inner {
+  width: 290px;
+  height: 145px;
+  // top : 550px;
+  // left: 600px;
+}
+
+.sound-meter-clipping-box {
+  width: 290px;
+  height: 145px;
+  overflow: hidden;
+  transform: scaleY(0.8);
+}
+
+.sound-meter {
+  position: relative;
+  width: 290px;
+  height: 145px;
+  z-index: 150;
+  border-bottom: 10px solid #ffffff;
+  border-radius: 145px 145px 0 0;
+  transform-origin: bottom center;
+  transform: rotateZ(-178deg);
+  transition: border-color 0.5s;
+}
+
+.sound-meter-background {
+  position: absolute;
+  top: 0;
+  width: 290px;
+  height: 145px;
+  z-index: 100;
+  background: #6aaf71ab;
+  border-radius: 145px 145px 0 0;
+  display: none;
+}
+
+
+.sound-meter.stopped {
+  border-color: #4c4aa0;
+}
+
+.sound-meter.fast {
   border-color: #a20258;
 }
 
@@ -292,6 +397,8 @@
 
 .conducting-mode .video-container {
   transform: scale(0.4);
+  position: relative;
+  top: 460px;
 }
 
 .conducting-mode .video-label {

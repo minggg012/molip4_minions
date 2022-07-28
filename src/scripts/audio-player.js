@@ -19,9 +19,15 @@ specific language governing permissions and limitations
 under the License.
 */
 
-import Tone from 'tone';
+//import Tone from 'tone';
+import * as Tone from 'tone';
 import config from '../config.js';
 import { getBeatLengthFromTempo, constrain } from './helpers';
+
+var vi = document.getElementById("vi");
+vi.addEventListener('ended', (event) => {
+      console.log('stoppinggg');
+    });
 
 export default class AudioPlayer {
   constructor(props) {
@@ -32,6 +38,10 @@ export default class AudioPlayer {
     this.finishedInstruments = 0;
     this.totalMeasures = (props.song.duration / 60) * (props.song.header.bpm / 4);
     this.loadInstruments();
+    this.instrument;
+    //this.player = new Tone.Player("./samples/bananasong.mp3").toDestination();
+    this.player = new Audio("./samples/bananasong.mp3");
+    this.stopped = false;
   }
 
   /* Called from main.js when tempo received from PoseController */
@@ -59,13 +69,17 @@ export default class AudioPlayer {
   generateSamplers(effects) {
     // Instruments should be given their official MIDI name, but lowercase,
     // e.g. 'cello'. This will be under tracks[i].instrument in the song json.
-    this.props.song.tracks.forEach((track) => {
-      this.activeInstruments.push(track.instrument);
-      track.sampler = new Tone.Sampler(
-        this.props.samples[track.instrument], // Sample URLs in samples.json
-        this.instrumentLoadCallback.bind(this), // Tells main.js the loading progress
-        config.paths.samplesPath // Root path for samples
-      ).chain(effects.gain, effects.jcReverb, effects.reverb, Tone.Master);
+    this.props.song.tracks.forEach((track, index) => {
+      if(index==0) {console.log(track.instrument);}
+        this.activeInstruments.push(track.instrument);
+        console.log("violin");
+        console.log(this.activeInstruments);
+        track.sampler = new Tone.Sampler(
+          this.props.samples[track.instrument], // Sample URLs in samples.json
+          this.instrumentLoadCallback.bind(this), // Tells main.js the loading progress
+          config.paths.samplesPath // Root path for samples
+        ).chain(effects.gain, effects.jcReverb, effects.reverb, Tone.Master);
+        this.sampler = track.sampler;
     });
   }
 
@@ -79,6 +93,7 @@ export default class AudioPlayer {
     Tone.Transport.timeSignature = song.header.timeSignature;
     song.tracks.forEach((track) => {
       this.queueTrack(track, track.sampler);
+      console.log("!!!");
     });
 
     Tone.Transport.position = startTime;
@@ -86,29 +101,36 @@ export default class AudioPlayer {
 
   /* Add all notes to the Transport, with the relevant instrument */
   queueTrack(track, instrument) {
+    this.props.triggerAnimation(track.instrument, 1, this.velocity);
+
     new Tone.Part((time, note) => {
       const measures = parseInt(Tone.Transport.position.split(':')[0]) + 1;
       this.props.setSongProgress(100 * measures / this.totalMeasures)
 
+      //console.log(track.instrument);
       // Only play the instrument this bar if it's active
       if (this.activeInstruments.includes(track.instrument)) {
+        console.log("hi");
         // Adjust note duration based on tempo (slower tempo = longer notes)
         const durationRatio = this.startingBpm / Math.max(Tone.Transport.bpm.value, config.detection.minimumBpm);
         const duration = constrain(note.duration * durationRatio, {
           max: config.detection.maximumDuration,
           min: config.detection.minimumDuration
         });
+        console.log(duration);
 
         const velocity = constrain(this.velocity, {
           max: config.detection.maximumVelocity,
           min: config.detection.minimumVelocity
         });
-
+        console.log(instrument);
         // Add a small time variation around 0 to make it sound more human
         // const variation = (Math.random() - 0.5) * 0.03;
         // Cue a note to be triggered at the time, with the pitch and duration
-        instrument.triggerAttackRelease(note.name, duration, time, velocity); 
-        this.props.triggerAnimation(track.instrument, duration, this.velocity);
+        console.log(time)
+        console.log(Tone.now());
+        instrument.triggerAttackRelease(note.name, 49, Tone.now(), velocity); 
+        instrument.triggerRelease();
       }
     }, track.notes).start();
   }
@@ -123,6 +145,7 @@ export default class AudioPlayer {
 
   /* Change which instruments are playing based on PoseController data */
   setInstrumentGroup(i) {
+    //console.log("over i", i);
     this.activeInstruments = config.zones[i].instruments
   }
 
@@ -136,15 +159,38 @@ export default class AudioPlayer {
   }
 
   start() {
-    Tone.Transport.start();
+    //Tone.Transport.start();
+    //console.log(this.stopped);
+    //console.log(this.player.state);
+//Tone.loaded().then(() => {
+  if(this.stopped) {
+    this.player.play();
+    this.stopped = false;
+  }
+//});
+//create a synth and connect it to the main output (your speakers)
+//const synth = new Tone.Synth().toDestination();
+
+//play a middle 'C' for the duration of an 8th note
+//synth.triggerAttackRelease("C4", "8n");
+    //this.player.start();
+    //this.sampler.triggerAttackRelease("G5", 10, Tone.now()+1, 1);
+    console.log("start");
   }
 
   stop() {
-    Tone.Transport.pause();
+    //console.log(Tone.Transport.pause);
+    //this.sampler.triggerRelease(["G5", Tone.now()]);
+    
+    console.log(vi.playback);
+    console.log("audio stop");
+    if(!this.stopped) this.player.pause();
+    this.stopped = true;
+    //Tone.Transport.pause();
   }
 
   restart() {
-    Tone.Transport.stop();
+    //Tone.Transport.stop();
     this.beatsElapsed = 0;
     Tone.Transport.bpm.value = this.startingBpm;
   }

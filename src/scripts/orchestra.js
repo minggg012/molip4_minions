@@ -33,6 +33,18 @@ export default class Orchestra {
     this.maxHeight = 670;
 
     this.instruments = instruments;
+    this.img_idx = 0;
+    this.up = 0;
+    this.gif = false;
+    this.tempo = 0;
+    this.four = false;
+    this.zero = false;
+    this.state0 = document.querySelectorAll('.zero');
+    this.state1 = document.querySelectorAll('.one');
+    this.state2 = document.querySelectorAll('.two');
+    this.state3 = document.querySelectorAll('.three');
+    this.state4 = document.querySelectorAll('.four');
+    this.List = [this.state0, this.state1, this.state2, this.state3, this.state4];
 
     const app = new PIXI.Application({
       width: this.maxWidth,
@@ -45,12 +57,13 @@ export default class Orchestra {
     app.renderer.autoResize = true;
     app.renderer.view.style.maxWidth = 1000 + 'px';
 
-    const container = document.querySelector('.orchestra');
+    /*const container = document.querySelector('.orchestra');
     container.appendChild(app.view);
 
     this.container = container;
-    this.app = app;
+    this.app = app;*/
     PIXI.loader.add(this.texturesPath).load(this.setup.bind(this));
+
   }
 
   /* Set up for the stage */
@@ -96,23 +109,40 @@ export default class Orchestra {
 
   /* For each frame, do this animation (animate any triggered insts) */
   loop() {
-    Object.keys(this.instruments).forEach((name) => {
-      const animation = this.instruments[name].animation;
-      if (animation.triggered) {
-        this.instruments[name].objects.forEach((inst) => {
-          const sinArgument = (1 / animation.duration) * 2 * Math.PI * (Date.now() - animation.startTime) / 1000;
-          inst.bow.sprite.x = inst.bow.x0 + 10 * Math.sin(sinArgument);
-          inst.sprite.rotation = inst.rotation0 + 0.025 * Math.sin(sinArgument);
-          inst.sprite.y = inst.y0 - 10 * this.velocity * (1 + Math.sin(0.5 * sinArgument));
-        });
-      }
-    })
-
+    console.log("loop");
+    
     requestAnimationFrame(this.loop.bind(this));
+  }
+
+  interval() {
+    console.log("interval");
+    setTimeout(( async ()=>{
+      this.List[this.img_idx-this.up].forEach((item) => item.style.display = 'none');
+      this.List[this.img_idx].forEach((item) => item.style.display = 'inline');
+      // this.List[0].forEach((item) => console.log("item"+item));
+      if (this.img_idx === 4) {
+        if(!this.four){
+          this.up = 0;
+        }
+        else this.up = -1;
+        this.four = !this.four;
+      }
+      else if (this.img_idx === 0) {
+        if(!this.zero){
+          this.up = 0;
+        }
+        else this.up = 1;
+        this.zero = !this.zero;
+        }
+      this.img_idx += this.up;
+    }), ((1/this.tempo)));
   }
 
   /* Called when a note is triggered for an instrument */
   trigger(instrument, duration, velocity) {
+    console.log("trig");
+    //setInterval((()=>{this.interval()}), 100);
+
     const inst = this.instruments[instrument];
     if (inst.animation.timeout) clearTimeout(inst.animation.timeout);
     inst.animation.triggered = true;
@@ -121,7 +151,7 @@ export default class Orchestra {
     this.velocity = velocity;
 
     inst.animation.timeout = setTimeout(() => {
-      inst.animation.triggered = false;
+      //inst.animation.triggered = false;
       clearTimeout(inst.animation.timeout);
     }, duration * 1000);
   }

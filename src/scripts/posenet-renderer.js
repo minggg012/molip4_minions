@@ -34,7 +34,7 @@ export default class PosenetRenderer {
 
   /* Draws a video frame + posenet lines onto the canvas */
   drawFrame(video, pose) {
-    const ctx = this.ctx;
+    const ctx = this.ctx; // canvas
     const width = config.display.width;
     const height = config.display.height;
 

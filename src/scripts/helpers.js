@@ -74,7 +74,7 @@ export function getBeatLengthFromTempo(tempo, time) {
 }
 
 export function arrayWithLargestVariation(arrays) {
- const variations = arrays.map((array) => {
+  const variations = arrays.map((array) => {
     return Math.max(...array) - Math.min(...array);
   });
   const arrayIndex = variations.indexOf(Math.max(...variations));

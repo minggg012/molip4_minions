@@ -2,8 +2,8 @@
 
 /* Variable Declarations */
 
-$primary-color:  #ff8976 !default;
-$secondary-color: #313390 !default;
+$primary-color:  #f7af6c !default;
+$secondary-color: rgb(240, 213, 126) !default;
 $base-font-size: 19px;
 $video-width: 600px;
 $video-height: 500px;
@@ -36,6 +36,13 @@ h1 {
   margin-bottom: 1rem;
 }
 
+h2 {
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 1.5;
+  color: #ffffff;
+}
+
 p {
   line-height: 1.4;
 }
@@ -64,7 +71,7 @@ button, .button {
   border-radius: 6px;
   font-weight: bold;
   text-transform: uppercase;
-  color: $secondary-color;
+  // color: $secondary-color;
 
   // Animation
   transform: translateY(0);
@@ -93,3 +100,13 @@ button:not([disabled]):hover {
   background: none;
   border: 6px solid $primary-color;
 }
+
+#container1 {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+

@@ -128,3 +128,13 @@ export function smoothNum(num, numSmoothing) {
   if (finalNum === num) console.log("DOINAOIN")
   return finalNum;
 }
+
+/* Smoothing for number values (tempo) */
+let prevSound;
+export function smoothSound(num, numSmoothing) {
+  if (!prevSound) { prevSound = num; return num; }
+  const finalNum = (prevSound - num) * (numSmoothing) + num;
+  prevSound = finalNum;
+  if (finalNum === num) console.log("DOINAOIN")
+  return finalNum;
+}

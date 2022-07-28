@@ -32,7 +32,8 @@ export default class Renderer {
 
     this.pages = {
       start: document.querySelector('.page-start'),
-      tutorial: document.querySelector('.page-tutorial'),
+      // tutorial: document.querySelector('.page-tutorial'),
+      register: document.querySelector('.page-register'),
       main: document.querySelector('.page-main'),
       info: document.querySelector('.page-info'),
       finish: document.querySelector('.page-finish'),
@@ -46,10 +47,12 @@ export default class Renderer {
       videoBorder: document.querySelector('.video-border'),
       startButton: document.querySelector('.start-button'),
       restartButtons: document.querySelectorAll('.button-restart'),
-      infoButton: document.querySelector('.button-info'),
+      finishButtons: document.querySelectorAll('.button-finish'),
+      //infoButton: document.querySelector('.button-info'),
       songTitle: document.querySelector('.song-title'),
       infoCloseButton: document.querySelector('.button-info-close'),
       tempo: document.querySelector('.tempo-meter'),
+      sound: document.querySelector('.sound-meter'),
       calibrationOverlay: document.querySelector('.calibration-overlay'),
       calibrationOverlayImg: document.querySelector('.calibration-overlay img'),
       countdownOverlay: document.querySelector('.countdown-overlay'),
@@ -62,6 +65,7 @@ export default class Renderer {
     this.elems.songTitle.innerHTML = this.props.songTitle;
     this.prevTempo = null;
     this.tempo = null;
+    this.sound = null;
     this.isFinishPage = false;
     this.roses = [];
     this.rosePositions = [];
@@ -89,25 +93,36 @@ export default class Renderer {
   /* Add event listeners now that DOM has loaded */
   addStartHooks() {
     this.elems.startButton.addEventListener('click', () => {
-      if (this.props.state.loaded) this.renderTutorialPage();
+      if (this.props.state.loaded) {
+        // hide(this.pages.start);
+        // this.props.startCalibration();
+        // this.renderCalibratePage();
+        this.renderRegisterPage();
+      } 
     })
     this.elems.restartButtons.forEach((button) => {
       button.addEventListener('click', () => {
         this.renderRestart();
       });
     })
-    this.elems.infoButton.addEventListener('click', () => {
-      show(this.pages.info, 'flex');
-    });
+    // this.elems.infoButton.addEventListener('click', () => {
+    //   show(this.pages.info, 'flex');
+    // });
     this.elems.infoCloseButton.addEventListener('click', () => {
       hide(this.pages.info)
+    });
+
+    this.elems.finishButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        this.renderFinishPage();
+      });
     });
   }
 
   /* Updates the loading button on the start page */
   renderLoadProgress(progress) {
     // Progress is a value between 0 and 100
-    this.elems.startButton.style.background = 'linear-gradient(to right, #ff8976 '
+    this.elems.startButton.style.background = 'linear-gradient(to right, #f0d57e '
       + progress + '%, rgba(0,0,0,0) ' + progress + '%)';
 
     if (progress === 100) {
@@ -133,51 +148,69 @@ export default class Renderer {
     }, 1500);
   }
 
-  /* Tutorial Page */
+  // /* Tutorial Page */
+  // renderTutorialPage() {
+  //   hide(this.pages.start);
+  //   show(this.pages.tutorial)
+  //   show(document.querySelector('.page-tutorial'), 'flex');
+  //   this.addTutorialHooks();  
+  // }
 
-  renderTutorialPage() {
+  // addTutorialHooks() {
+  //   // 'Next page' buttons
+  //   document.querySelectorAll('.tutorial-next').forEach((button) => {
+  //     button.addEventListener('click', () => {
+  //       hide(document.querySelector('.tutorial-part-' + tutorialStep));
+  //       tutorialStep++;
+  //       show(document.querySelector('.tutorial-part-' + tutorialStep), 'flex');
+  //     });
+  //   });
+
+  //   // 'Finish tutorial' button
+  //   document.querySelector('.tutorial-end').addEventListener('click', () => {
+  //     hide(this.pages.tutorial);
+
+  //     this.props.startCalibration();
+  //     this.renderCalibratePage();
+  //   });
+  // }
+
+  /* Register Page */
+  renderRegisterPage() {
     hide(this.pages.start);
-    show(this.pages.tutorial)
-    show(document.querySelector('.tutorial-part-1'), 'flex');
-    this.addTutorialHooks();
-  }
+    show(this.pages.register);
+    show(document.querySelector('.page-register'));
+    $('#container1').show();
 
-  addTutorialHooks() {
-    let tutorialStep = 1;
-
-    // 'Next page' buttons
-    document.querySelectorAll('.tutorial-next').forEach((button) => {
-      button.addEventListener('click', () => {
-        hide(document.querySelector('.tutorial-part-' + tutorialStep));
-        tutorialStep++;
-        show(document.querySelector('.tutorial-part-' + tutorialStep), 'flex');
-      });
-    });
-
-    // 'Finish tutorial' button
-    document.querySelector('.tutorial-end').addEventListener('click', () => {
-      hide(this.pages.tutorial);
-
+    var register_button = document.getElementById('main-start');
+    register_button.addEventListener('click', () => {
+      hide(this.pages.register);
       this.props.startCalibration();
       this.renderCalibratePage();
     });
   }
 
+
   /* === CALIBRATE PAGE FUNCTIONS === */
 
   renderCalibratePage() {
     show(this.pages.main, 'flex');
+    
   }
 
   renderTempo(tempo) {
     this.tempo = tempo;
   }
 
+  renderSound(sound) {
+    this.sound = sound;
+  }
+
   startTempoAnimation() {
 
     if ((typeof this.tempo === 'number') && (typeof this.currentTempo === 'number')) {
       this.currentTempo = (this.tempo - this.currentTempo) * 0.1 + this.currentTempo;
-      if (this.currentTempo > 200) {
+      if (this.currentTempo > config.detection.maximumBpm * 3/4) {
         this.elems.tempo.classList.add('fast')
       } else {
         this.elems.tempo.classList.remove('fast')
@@ -199,6 +232,31 @@ export default class Renderer {
     requestAnimationFrame(this.startTempoAnimation.bind(this));
   }
 
+  startSoundAnimation() {
+    console.log(this.sound);
+    if ((typeof this.sound === 'number') && (typeof this.currentSound === 'number')) {
+      this.currentSound = (this.sound - this.currentSound) * 0.1 + this.currentSound;
+      if (this.currentSound > 0.75) {
+        this.elems.sound.classList.add('fast')
+      } else {
+        this.elems.sound.classList.remove('fast')
+      }
+      const maxSound = config.detection.maximumVelocity;
+      const soundRatio = Math.min(maxSound, this.currentSound) / maxSound;
+      const rotation = constrain(Math.round(180 * soundRatio) - 180, {
+        min: 10 - 180,
+        max: -20
+      });
+      this.elems.sound.style.transform = 'rotateZ(' + rotation + 'deg)';
+    }
+
+    if ((typeof this.sound === 'number') && !(typeof this.currentSound === 'number')) {
+      this.currentSound = this.sound;
+    }
+
+    requestAnimationFrame(this.startSoundAnimation.bind(this));
+  }
+
   /* === CONDUCTING PAGE FUNCTIONS === */
 
   renderCalibrationSuccess() {
@@ -213,6 +271,24 @@ export default class Renderer {
     show(this.elems.conductingOverlay);
     this.pages.main.classList.add('conducting-mode');
     this.startTempoAnimation();
+    this.startSoundAnimation();
+    setTimeout(async () => {
+      $('#minion1').show();
+      $('#minion2').show();
+      $('#minion3').show();
+      $('#minion4').show();
+      $('#lamp1').show();
+      $('#lamp2').show();
+      $('#lamp3').show();
+      $('#lamp4').show();
+      $('#foot').show();
+      $('.tempo-meter-background').show();
+      $('.tempo-icon').show();
+      $('.sound-meter-background').show();
+      $('.sound-icon').show();
+
+    }, 2000)
+    
   }
 
   triggerAnimation(instrument, duration, velocity) {
@@ -263,6 +339,8 @@ export default class Renderer {
     
     // Add new video object to the DOM
     elem.appendChild(video);
+
+    
     
     // Send promise to return video object once stream is loaded
     return new Promise((resolve) => {
@@ -306,7 +384,7 @@ export default class Renderer {
       const angle = (Math.random() - 0.5) * 35;
       let transformString = 'rotateZ(' + angle + 'deg)';
       if (flipped) transformString += ' scaleX(-1)';
-      console.log(transformString)
+      //console.log(transformString)
       roseImg.style.transform = transformString;
 
       rose.appendChild(roseImg);

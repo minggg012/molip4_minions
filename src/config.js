@@ -45,7 +45,8 @@ export default {
     "smoothing": 0.67,
     "maxJumpRatio": 0.4,
     "jumpResetTime": 500,
-    "speedSmoothing": 0.8
+    "speedSmoothing": 0.3, // 0.8
+    "soundSmoothing": 0.3
   },
   "posenet": {
     "algorigthm": "multi-pose",
@@ -58,21 +59,23 @@ export default {
   },
   "detection": {
     "calibrationMargin": 50,
-    "distanceMeasurementNumber": 5,
-    "distanceMeasurementInterval": 50,
+    "distanceMeasurementNumber": 5, // 5
+    "distanceMeasurementInterval": 100, // 50
+    "slideDecisionNumber": 5,
+    "slideDecisionInterval": 50,
     "beatDistanceArmspanRatio": 0.4,
-    "minimumBpm": 40,
-    "maximumBpm": 200,
+    "minimumBpm": 20,
+    "maximumBpm": 450,
     "minimumDuration": 0.05,
     "maximumDuration": 6,
     "minimumVelocity": 0.1,
     "maximumVelocity": 1,
     "beatLengthStoppingIntervalRatio": 0.4,
-    "stoppingDistanceArmspanRatio": 0.08
+    "stoppingDistanceArmspanRatio": 0.07 //stop factor (0.07)
   },
   "zones": [
     {
-      "start": 0,
+      "start": -100,
       "end": 260,
       "instruments": ["violin", "string ensemble 1"]
     },
@@ -83,7 +86,7 @@ export default {
     },
     {
       "start": 340,
-      "end": 600,
+      "end": 700,
       "instruments": ["viola", "cello", "contrabass"]
     }
   ]

@@ -32,6 +32,9 @@ import config from '../config.js';
 import song from '../assets/song.json';
 import samples from '../assets/samples.json';
 
+
+
+
 class App {
   constructor(config) {
     this.config = config;
@@ -67,6 +70,7 @@ class App {
       renderer: this.renderer,
       handleCalibration: this.handleCalibration.bind(this),
       setTempo: this.setTempo.bind(this),
+      setSound: this.setSound.bind(this),
       getBeatLength: this.audioPlayer.getBeatLength.bind(this.audioPlayer),
       setInstrumentGroup: this.audioPlayer.setInstrumentGroup.bind(this.audioPlayer),
       setVelocity: this.audioPlayer.setVelocity.bind(this.audioPlayer),
@@ -101,14 +105,18 @@ class App {
     if (percentage === 100) {
       this.state.loaded = true;
       this.audioPlayer.queueSong();
+      
     }
   }
 
   setSongProgress(percentage) {
-    this.renderer.renderSongProgress(percentage);
+    console.log('setsong');
+    console.log('this.state.finished'+this.state.finished);
     if (percentage >= 99.9 && !this.state.finished) {
       this.state.finished = true;
       this.renderer.renderFinishPage();
+  //    this.renderer.renderSongProgress(percentage);
+
     }
   }
 
@@ -117,19 +125,31 @@ class App {
     // Sanity check just in case.
     if (!(tempo > 0) || tempo == Infinity) return;
     this.renderer.renderTempo(tempo);
+    //console.log(tempo)
     this.audioPlayer.setTempo(tempo);
+    //console.log(tempo);
+    vi.playbackRate = tempo/config.detection.maximumBpm*2;
+  }
+
+  setSound(sound) {
+    if (!(sound) > 0 || sound == Infinity || sound < 0 || sound > 1) return;
+    this.renderer.renderSound(sound);
+    this.audioPlayer.setVelocity(sound);
+    vi.volume = sound;
   }
 
   /* Called when resuming motion in PoseController */
   start() {
     this.state.stopped = false;
-    this.audioPlayer.start()
+    //this.audioPlayer.start()
+    if((!ended)) vi.play();
   }
 
   /* Called when motion is stopped from PoseController */
   stop() {
     this.state.stopped = true;
-    this.audioPlayer.stop();
+    //this.audioPlayer.stop();
+    if((!ended)) vi.pause()
   }
 
   /* Called when user clicks start button in renderer.js */
@@ -148,6 +168,7 @@ class App {
         await this.renderer.renderCountdown();
         this.state.conducting = true;
       }, 1000)
+      
     }, 2000);
   }
 
@@ -162,3 +183,44 @@ class App {
 }
 
 const app = new App(config);
+console.log(app);
+const vi = document.getElementById("vi");
+var ended = false;
+console.log(vi);
+//vi.play();
+vi.addEventListener('ended', function(){
+  ended = true;
+  console.log("end! ap");
+  console.log("app");
+
+  console.log(app);
+  app.setSongProgress(100);
+});
+
+vi.addEventListener('loadedstart', (event) => {
+  console.log("loadedstart");
+});
+
+vi.addEventListener('loadeddata', (event) => {
+  console.log("loaded");
+  console.log(app);
+});
+
+const inputFile = document.getElementById("file-upload");
+const submit = document.getElementById("submit");
+const name = document.getElementById("name");
+
+submit.addEventListener("click", function(){
+    const file = inputFile.files[0];
+    if(!file) alert("file이 없습니다.");
+    else{
+      const videourl = URL.createObjectURL(file);
+      const title = name.value;
+      alert(title+" 등록 완료");
+      console.log(title);
+      console.log(app);
+      console.log(app.poseController.video_urls);
+      app.poseController.video_urls.push({url: videourl, title: title});
+      console.log(app.poseController.video_urls);
+    } 
+})
